@@ -1,15 +1,30 @@
 var cheerio = require('cheerio');
 var fs = require('fs');
 var _ = require('lodash');
+var mongoose = require('mongoose');
+
+var artistSchema = mongoose.Schema({
+    name: String,
+    songs: []
+});
+
+var Artist = mongoose.model('Artist', artistSchema);
+
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/songbook');
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function (callback) {
+  // yay!
+});
 
 console.log('migrating song data');
-var $ = cheerio.load(fs.readFileSync('./ViewBook.aspx.htm'), {
+var $ = cheerio.load(fs.readFileSync('./songbook.html'), {
     normalizeWhitespace: false
 });
 
-var songBookFile = fs.createWriteStream('songBook.json');
 var exceptionFile = fs.createWriteStream('exception.txt');
-songBookFile.write('[\n');
+
 var everything = $('#tableBook tr td').get();
 
 var artists = $('b').get();
@@ -28,11 +43,11 @@ for (var i = 0; i < everything.length; i++) {
 
     if (entry === $(artists).eq(a).text().trim()) {
         if (transformed != null) {            
-            songBookFile.write(JSON.stringify(transformed, null, 2));  
-            songBookFile.write('\n');
-            if(a !== artists.length -1) songBookFile.write(',');  
+            var artist = new Artist({'name': transformed.artist, 'songs': transformed.songs});
+            artist.save(function(err, artist){
+                
+            });
             
-            first = false;
         }
 
         transformed = {
@@ -49,6 +64,5 @@ for (var i = 0; i < everything.length; i++) {
     }
 
 }
-songBookFile.write('\n]');
-songBookFile.end();
+
 exceptionFile.end();
