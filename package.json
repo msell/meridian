@@ -4,18 +4,24 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha -w ./test/migration.spec.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "chai": "^1.10.0",
     "cheerio": "^0.18.0",
-    "gulp": "^3.8.10"
+    "gulp": "^3.8.10",
+    "mocha": "^2.1.0",
+    "sinon": "^1.12.2"
   },
   "dependencies": {
+    "body-parser": "^1.11.0",
     "chalk": "^0.5.1",
     "lodash": "^3.0.0",
     "mongoose": "^3.8.22",
-    "rsvp": "^3.0.16"
+    "rsvp": "^3.0.16",
+    "superagent": "^0.21.0",
+    "superagent-as-promised": "^2.0.0"
   }
 }
