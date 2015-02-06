@@ -5,7 +5,7 @@ var sinon = require('sinon');
 
 describe('scraping the data', function(){
     it('should fetch songbook data', function(done){
-        var results = sut.scrapeData();
+        var results = sut();
         results.artists.should.have.length(3);
         results.everything.should.have.length(17);
         results.songs.should.have.length(14);
