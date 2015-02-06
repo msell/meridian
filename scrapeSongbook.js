@@ -61,9 +61,11 @@ function addArtist(artist) {
         .end(function (res) {
             //console.log(res);
             var artistId = JSON.parse(res.text).id;
-            _(artist.songs).each(function (song) {            
+            console.log(artistId);
+            artist.songs.forEach(function(song){
                 addSong(artistId, song);
             });
+            
         })
 }
 
