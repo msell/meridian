@@ -16,9 +16,9 @@ var cursor = 0;
 var $ = null;
 var emitter = new EventEmitter();
 emitter.on('artistFound', function (data) {
-    addArtist(data);
-})
-//something is either wrong w/ full-songbook or...works on regular songbook
+        addArtist(data);
+    })
+    //something is either wrong w/ full-songbook or...works on regular songbook
 $ = cheerio.load(fs.readFileSync('./full-songbook.html'), {
     normalizeWhitespace: false
 });
@@ -27,6 +27,7 @@ var everything = $('#tableBook tr td').get();
 
 var artists = $('b').get();
 var songs = $('i').get();
+var promises = [];
 
 for (var i = 0; i <= everything.length; i++) {
     var entry = $(everything).eq(i).text().trim();
@@ -40,7 +41,8 @@ for (var i = 0; i <= everything.length; i++) {
 
             //console.log(artist);            
             //addArtist(artist);    
-            emitter.emit('artistFound', artist);
+            //emitter.emit('artistFound', artist);
+            promises.push(addArtist(artist));
         }
 
         transformed = {
@@ -56,37 +58,49 @@ for (var i = 0; i <= everything.length; i++) {
     }
 }
 
+RSVP.all(promises).then(function(){
+    console.log('all done yo');
+})
 
 function addArtist(artist) {
     //console.log('adding ' + artist.name);
 
-    request.post(artistUrl)
+    return new RSVP.Promise(function(resolve,reject){
+        var songPromises = [];
+        request.post(artistUrl)
         .send({
             'name': artist.name
         })
         .set('Accept', 'application/json')
-        .end(function (res) {
+        .end(function (res) {            
             var artistId = JSON.parse(res.text).id;
             console.log(artistId);
             artist.songs.forEach(function (song) {
-                addSong(artistId, song);
+                songPromises.push(addSong(artistId, song));
             })
         })
         .on('response', function (res) {
             console.log('artist: ' + JSON.parse(res.text).name);
-        });
+            RSVP.all(songPromises).then(function () {
+                console.log('all songs added for ' + artist.name)
+            });
+            resolve();
+        });    
+    });
 }
 
 function addSong(artistId, name) {
     //console.log('adding %s', name);
-    request.post(songUrl)
-        .send({
-            'name': name,
-            'artist': artistId
-        })
-        .end()
-        .on('response',function(res){
-        console.log('song: ' + JSON.parse(res.text).name);
-        
-    })
+    return new RSVP.Promise(function (resolve, reject) {
+        request.post(songUrl)
+            .send({
+                'name': name,
+                'artist': artistId
+            })
+            .end()
+            .on('response', function (res) {
+                //console.log('song: ' + JSON.parse(res.text).name);
+                resolve();
+            })
+    });
 }
