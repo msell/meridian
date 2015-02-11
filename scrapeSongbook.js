@@ -67,9 +67,11 @@ var addArtist = function (artist, cb) {
                 return function (cb) {
                     addSong(artistId, song, cb);
                 }
-            }))
-        });
+            }));
+            cb();
+        })
 }
+
 
 var addSong = function (artistId, name, cb) {
     //console.log('adding %s', name);    
@@ -85,9 +87,8 @@ var addSong = function (artistId, name, cb) {
         })
 }
 
-async.series(songbook.map(function(artist){
-    return function(cb){
+async.series(songbook.map(function (artist) {
+    return function (cb) {
         addArtist(artist, cb);
     }
 }))
-
