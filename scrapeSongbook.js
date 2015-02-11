@@ -14,7 +14,7 @@ var cursor = 0;
 var $ = null;
 var async = require('async');
 //something is either wrong w/ full-songbook or...works on regular songbook
-$ = cheerio.load(fs.readFileSync('./songbook.html'), {
+$ = cheerio.load(fs.readFileSync('./full-songbook.html'), {
     normalizeWhitespace: false
 });
 
