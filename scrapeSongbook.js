@@ -40,6 +40,7 @@ for (var i = 0; i <= everything.length; i++) {
 
         transformed = {
             'artist': entry,
+            'songCount': 0,
             'songs': []
         };
         a++;
